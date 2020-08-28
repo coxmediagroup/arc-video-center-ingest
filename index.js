@@ -25,6 +25,9 @@ functions.handler = async (event, context, callback) => {
     // Get the record
     const record = event.Records[0];
 
+    // Log fit for Metric Filtering in CloudWatch
+    console.log('[S3:ObjectCreated]', record.s3.bucket.name.replace(/-/g, '_'), record.s3.object.key);
+
     // Get the bucket and key
     const bucket = record.s3.bucket.name;
     const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '))
