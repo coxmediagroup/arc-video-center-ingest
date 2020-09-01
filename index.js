@@ -47,7 +47,7 @@ functions.handler = async (event, context, callback) => {
         }
       };
 
-      // Publish upload notfcation via SNS
+      // Publish upload notification via SNS
       // No need to await this
       customUtils.publishWithSNS(VANTAGE_NNT_S3_UPLOAD_SNS_ARN, snsMessage, snsSubject, snsMessageAttributes);
     }
