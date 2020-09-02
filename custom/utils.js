@@ -13,7 +13,7 @@ const exportObj = {}
  * 
  * @return {Promise<Object>} The response from SNS
  */
-exportObj.publishWithSNS = async (topicArn, message, subject, messageAttributes) => {
+exportObj.postToSNS = async (topicArn, message, subject, messageAttributes) => {
   try {
     const params = {
       TopicArn: topicArn,

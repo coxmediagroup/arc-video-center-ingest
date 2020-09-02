@@ -49,7 +49,7 @@ functions.handler = async (event, context, callback) => {
 
       // Publish upload notification via SNS
       // No need to await this
-      customUtils.publishWithSNS(VANTAGE_NNT_S3_UPLOAD_SNS_ARN, snsMessage, snsSubject, snsMessageAttributes);
+      customUtils.postToSNS(VANTAGE_NNT_S3_UPLOAD_SNS_ARN, snsMessage, snsSubject, snsMessageAttributes);
     }
 
     // Validate that we want to handle this key. We'll accept video files and default metadata files
