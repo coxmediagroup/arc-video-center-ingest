@@ -3,10 +3,12 @@ const importer = require('./lib/importer');
 const metadata = require('./lib/metadata');
 const utils = require('./lib/utils');
 const s3 = require('./lib/s3');
+const customUtils = require('./custom/utils');
 
 // Constants
 const VIDEO_MATCH_REGEX = '(.+/)*[^/]+.(?:.mp4|.mov|.mxf|.m4v|.mpg|.mpg2)$';
 const DEFAULT_METADATA_MATCH_REGEX = '(.+/)*_default.json';
+const VANTAGE_NNT_S3_UPLOAD_SNS_ARN = "arn:aws:sns:us-east-1:934446209541:cmg-digidev-VantageNntS3Upload-prod";
 
 const functions = {};
 
@@ -25,13 +27,30 @@ functions.handler = async (event, context, callback) => {
     // Get the record
     const record = event.Records[0];
 
-    // Log fit for Metric Filtering in CloudWatch
-    console.log('[S3:ObjectCreated]', record.s3.bucket.name.replace(/-/g, '_'), record.s3.object.key);
-
     // Get the bucket and key
     const bucket = record.s3.bucket.name;
-    const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '))
+    const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '));
     console.log(`Received event for [${bucket}/${key}]`);
+
+    // Send SNS message for a National News Tonight upload.
+    // In future, if this is requested for other programs,
+    // use switch cases to setup SNS parameters
+    if(key.includes("nationalnewstonight")) {
+      const splitKey = key.split("/");
+      const fileName = splitKey[splitKey.length - 1];
+      const snsMessage = `NNT file was successfully uploaded to S3.\r\nFile name: ${fileName}`;
+      const snsSubject = "OK: Vantage NNT S3 Upload";
+      const snsMessageAttributes = {
+        "uploadStatus": {
+          DataType: "String",
+          StringValue: "success"
+        }
+      };
+
+      // Publish upload notification via SNS
+      // No need to await this
+      customUtils.postToSNS(VANTAGE_NNT_S3_UPLOAD_SNS_ARN, snsMessage, snsSubject, snsMessageAttributes);
+    }
 
     // Validate that we want to handle this key. We'll accept video files and default metadata files
     const videoMatcher = key.match(VIDEO_MATCH_REGEX);
