@@ -8,7 +8,7 @@ const customUtils = require('./custom/utils');
 // Constants
 const VIDEO_MATCH_REGEX = '(.+/)*[^/]+.(?:.mp4|.mov|.mxf|.m4v|.mpg|.mpg2)$';
 const DEFAULT_METADATA_MATCH_REGEX = '(.+/)*_default.json';
-const VANTAGE_NNT_S3_UPLOAD_SNS_ARN = "arn:aws:sns:us-east-1:934446209541:cmg-ArcVideoCenterIngest-prod";
+const VANTAGE_NNT_S3_UPLOAD_SNS_ARN = "arn:aws:sns:us-east-1:934446209541:cmg-digidev-VantageNntS3Upload-prod";
 
 const functions = {};
 
