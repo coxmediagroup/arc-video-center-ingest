@@ -36,20 +36,26 @@ functions.handler = async (event, context, callback) => {
     // In future, if this is requested for other programs,
     // use switch cases to setup SNS parameters
     if(key.includes("nationalnewstonight")) {
-      const splitKey = key.split("/");
-      const fileName = splitKey[splitKey.length - 1];
-      const snsMessage = `NNT file was successfully uploaded to S3.\r\nFile name: ${fileName}`;
-      const snsSubject = "OK: Vantage NNT S3 Upload";
-      const snsMessageAttributes = {
-        "uploadStatus": {
-          DataType: "String",
-          StringValue: "success"
-        }
-      };
+      try {
+        const videoMeta = await s3.headObject({Bucket: record.s3.bucket.name, Key: record.s3.object.key});
+        const videoMetaDate = new Date(videoMeta.LastModified);
+        const splitKey = key.split("/");
+        const fileName = splitKey[splitKey.length - 1];
+        const snsMessage = `NNT file was successfully uploaded to S3.\r\nFile name: ${fileName}\r\nCreated/Last Modified: ${videoMetaDate.toString()}`;
+        const snsSubject = "OK: Vantage NNT S3 Upload";
+        const snsMessageAttributes = {
+          "uploadStatus": {
+            DataType: "String",
+            StringValue: "success"
+          }
+        };
 
-      // Publish upload notification via SNS
-      // No need to await this
-      customUtils.postToSNS(VANTAGE_NNT_S3_UPLOAD_SNS_ARN, snsMessage, snsSubject, snsMessageAttributes);
+        // Publish upload notification via SNS
+        // No need to await this
+        customUtils.postToSNS(VANTAGE_NNT_S3_UPLOAD_SNS_ARN, snsMessage, snsSubject, snsMessageAttributes);
+      } catch(nntErr) {
+        console.log(nntErr);
+      }
     }
 
     // Validate that we want to handle this key. We'll accept video files and default metadata files
