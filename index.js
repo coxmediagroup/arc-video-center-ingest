@@ -60,7 +60,7 @@ functions.handler = async (event, context, callback) => {
     await importer.importFile(bucket, key, executionContext);
 
   } catch (err) {
-    console.log(err);
+    console.log(`[/index.js] [ERROR::ARC_VIDEO_CENTER_INGEST] ${err}`);
     callback({ status: 'error' });
     return;
   }
