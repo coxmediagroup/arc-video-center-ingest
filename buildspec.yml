@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    LAMBDA_NAME: "arc-ingest-video-dev"
+    LAMBDA_NAME: "arc-video-center-ingest-dev"
     # BUCKET_NAME: "cmg-digidev-radioalexa-lambda-code-bucket"
   parameter-store:
     GITHUB_TOKEN: "/platform-api/bot/GITHUB_TOKEN" # GitHub API
