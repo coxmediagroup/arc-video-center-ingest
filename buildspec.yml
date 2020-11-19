@@ -26,6 +26,8 @@ phases:
       - cp -r resources deploy/
       - cd deploy
       - zip -r ../deploy.zip .
+      - cd ..
+      - ls
   build:
     commands:
-      - aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb:///deploy.zip --publish
+      - aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://deploy.zip --publish
