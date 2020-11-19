@@ -28,4 +28,4 @@ phases:
       - zip -r ../deploy.zip .
   build:
     commands:
-      - aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://deploy.zip --publish
+      - aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb:///deploy.zip --publish
