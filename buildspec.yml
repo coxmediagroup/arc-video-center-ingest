@@ -2,8 +2,7 @@ version: 0.2
 
 env:
   variables:
-    LAMBDA_NAME: "arc-video-center-ingest"
-    # BUCKET_NAME: "cmg-digidev-radioalexa-lambda-code-bucket"
+    LAMBDA_NAME: "cmg-consumersystems-arc-video-center-ingest"
   parameter-store:
     GITHUB_TOKEN: "/platform-api/bot/GITHUB_TOKEN" # GitHub API
     SSH_KEY: "/platform-api/bot/SSH_KEY" # NPM install private GitHub repos
@@ -11,14 +10,11 @@ env:
 phases:
   install:
     commands:
-      # - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay&
-      # - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - yarn install --production
     runtime-versions:
       nodejs: 10
   pre_build:
     commands:
-      # Seems to be a bug with serverless 1.52.0
       - mkdir deploy
       - cp index.js deploy
       - cp -r node_modules deploy/
