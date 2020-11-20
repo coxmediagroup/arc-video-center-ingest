@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    LAMBDA_NAME: "arc-video-center-ingest-dev"
+    LAMBDA_NAME: "arc-video-center-ingest"
     # BUCKET_NAME: "cmg-digidev-radioalexa-lambda-code-bucket"
   parameter-store:
     GITHUB_TOKEN: "/platform-api/bot/GITHUB_TOKEN" # GitHub API
@@ -27,7 +27,6 @@ phases:
       - cd deploy
       - zip -r ../deploy.zip .
       - cd ..
-      - ls
   build:
     commands:
-      - aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://deploy.zip --publish
+      - aws lambda update-function-code --function-name $LAMBDA_NAME-${STAGE} --zip-file fileb://deploy.zip --publish
