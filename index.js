@@ -7,6 +7,11 @@ const s3 = require('./lib/s3');
 // Constants
 const VIDEO_MATCH_REGEX = '(.+/)*[^/]+.(?:.mp4|.mov|.mxf|.m4v|.mpg|.mpg2)$';
 const DEFAULT_METADATA_MATCH_REGEX = '(.+/)*_default.json';
+const programFolderMap = {
+  nationalnewstonight: { Key: 'ArcExpire', Value: 'True' },
+  newsy: { Key: 'ArcExpire', Value: 'True' },
+  hottopics: { Key: 'ArcExpireWeekly', Value: 'True' },
+};
 
 const functions = {};
 
@@ -30,12 +35,20 @@ functions.handler = async (event, context, callback) => {
     const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '));
     console.log(`Received event for [${bucket}/${key}]`);
 
+    let programExpireTag = { Key: 'ArcExpire', Value: 'True' } // default
+    for (const programKey in programFolderMap) {
+      if(key.toLowerCase().includes(programKey)) {
+        programExpireTag = programFolderMap[programKey];
+        break;
+      }
+    }
+
     // Validate that we want to handle this key. We'll accept video files and default metadata files
     const videoMatcher = key.match(VIDEO_MATCH_REGEX);
     const defaultMetadataMatcher = key.match(DEFAULT_METADATA_MATCH_REGEX);
     if (!videoMatcher && !defaultMetadataMatcher) {
       console.log('Skipping as not handled');
-      await s3.addTags(bucket, key, [{ Key: 'ArcExpire', Value: 'True' }]);
+      await s3.addTags(bucket, key, [programExpireTag]);
       callback(null, { status: 'success' });
       return;
     }
@@ -48,13 +61,13 @@ functions.handler = async (event, context, callback) => {
     if (defaultMetadataMatcher) {
       console.log(`Expiring default metadata for key [${key}]`);
       metadata.expireDefaultMetadata(key, executionContext);
-      await s3.addTags(bucket, key, [{ Key: 'ArcExpire', Value: 'False' }]);
+      await s3.addTags(bucket, key, [{ ...programExpireTag, Value: 'False' }]);
       callback(null, { status: 'success' });
       return;
     }
 
     // Set the media tag.
-    await s3.addTags(bucket, key, [{ Key: 'ArcExpire', Value: 'True' }]);
+    await s3.addTags(bucket, key, [programExpireTag]);
 
     // Import the file
     await importer.importFile(bucket, key, executionContext);
