@@ -10,7 +10,7 @@ const DEFAULT_METADATA_MATCH_REGEX = '(.+/)*_default.json';
 const programFolderMap = {
   nationalnewstonight: { Key: 'ArcExpire', Value: 'True' },
   newsy: { Key: 'ArcExpire', Value: 'True' },
-  hottopics: { Key: 'ArcExpireWeekly', Value: 'True' },
+  hottopics: { Key: 'ArcExpireWeekly', Value: 'True' }
 };
 
 const functions = {};
@@ -35,13 +35,17 @@ functions.handler = async (event, context, callback) => {
     const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '));
     console.log(`Received event for [${bucket}/${key}]`);
 
-    let programExpireTag = { Key: 'ArcExpire', Value: 'True' } // default
-    for (const programKey in programFolderMap) {
-      if(key.toLowerCase().includes(programKey)) {
-        programExpireTag = programFolderMap[programKey];
-        break;
-      }
-    }
+    let programExpireTag = { Key: 'ArcExpire', Value: 'True' }; // default
+    Object.entries(programFolderMap)
+      .some((el) => {
+        const [pKey, pValue] = el;
+        if (key.toLowerCase().includes(pKey)) {
+          programExpireTag = pValue;
+          return true;
+        }
+
+        return false;
+      });
 
     // Validate that we want to handle this key. We'll accept video files and default metadata files
     const videoMatcher = key.match(VIDEO_MATCH_REGEX);
@@ -73,7 +77,7 @@ functions.handler = async (event, context, callback) => {
     await importer.importFile(bucket, key, executionContext);
 
   } catch (err) {
-    console.log(`[/index.js] [ERROR::ARC_VIDEO_CENTER_INGEST] ${err}`);
+    console.log(`[/index.js::handler()] [ERROR::ARC_VIDEO_CENTER_INGEST] ${err}`);
     callback({ status: 'error' });
     return;
   }
