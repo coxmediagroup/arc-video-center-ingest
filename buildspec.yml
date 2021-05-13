@@ -12,7 +12,7 @@ phases:
     commands:
       - yarn install --production
     runtime-versions:
-      nodejs: 10
+      nodejs: 14
   pre_build:
     commands:
       - mkdir deploy
