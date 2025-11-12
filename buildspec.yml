@@ -3,16 +3,13 @@ version: 0.2
 env:
   variables:
     LAMBDA_NAME: "cmg-consumersystems-arc-video-center-ingest"
-  parameter-store:
-    GITHUB_TOKEN: "/platform-api/bot/GITHUB_TOKEN" # GitHub API
-    SSH_KEY: "/platform-api/bot/SSH_KEY" # NPM install private GitHub repos
-    
+
 phases:
   install:
     commands:
       - yarn install --production
     runtime-versions:
-      nodejs: 18
+      nodejs: 20
   pre_build:
     commands:
       - mkdir deploy
@@ -26,3 +23,5 @@ phases:
   build:
     commands:
       - aws lambda update-function-code --function-name $LAMBDA_NAME-${STAGE} --zip-file fileb://deploy.zip --publish
+      - sleep 30
+      - aws lambda update-function-configuration --function-name $LAMBDA_NAME-${STAGE} --runtime nodejs20.x --handler index.handler --region us-east-1
